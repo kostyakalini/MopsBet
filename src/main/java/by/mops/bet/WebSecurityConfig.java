@@ -39,11 +39,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
+                .antMatchers("/registration").not().fullyAuthenticated()
                 .antMatchers("/new").hasAnyRole("USER", "ADMIN")
                 .antMatchers("/edit/**", "delete/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                .formLogin().permitAll()
+                .formLogin().loginPage("/login").usernameParameter("login")
+                .passwordParameter("password")/*.failureUrl("/login_error")*/.defaultSuccessUrl("/")
+                /*.failureForwardUrl("/login_error")*/.permitAll()
                 .and()
                 .logout().permitAll()
                 .and()

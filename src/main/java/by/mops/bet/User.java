@@ -20,6 +20,15 @@ public class User {
     private String password;
     private String role;
     private boolean enabled;
+    /*private String confirmPassword;
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }*/
 
     public Long getId() {
         return id;
