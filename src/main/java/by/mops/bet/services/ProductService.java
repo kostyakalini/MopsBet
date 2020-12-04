@@ -1,7 +1,9 @@
-package by.mops.bet;
+package by.mops.bet.services;
 
 import java.util.List;
 
+import by.mops.bet.dao.ProductDao;
+import by.mops.bet.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
 
     @Autowired
-    private ProductRepository repo;
+    private ProductDao repo;
 
     public List<Product> listAll() {
         return repo.findAll();

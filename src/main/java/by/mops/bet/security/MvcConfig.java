@@ -1,4 +1,4 @@
-package by.mops.bet;
+package by.mops.bet.security;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;

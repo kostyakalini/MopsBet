@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymleaf-extras-springsecurity5">
+<head>
+    <meta charset="utf-8"/>
+    <title>Product Manager</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+<div align="center">
+    <nav class="navbar navbar-expand-lg navbar-light bg-info">
+        <div class="collapse navbar-collapse" style="height: 3em; display: flex; align-items: center;
+                                                        justify-content: center; ">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <button id="hider2" class="btn btn-info">Список событий</button>
+                </li>
+                <li class="nav-item">
+                    <button id="hider3" class="btn btn-info">Список оформленных ставок</button>
+                </li>
+                <li class="nav-item">
+                    <a href="/balance" class="btn btn-warning"  data-toggle="tooltip" data-html="true" th:title="${user.balance} + '$'">Баланс</a>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="btn btn-danger">Выйти</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</div>
+<div align="center">
+    <h1>MOP$ Bet</h1>
+    <h3 th:inline="text">Welcome [[${#httpServletRequest.remoteUser}]]</h3>
+
+
+    <br/><br/>
+    <table border="1" cellpadding="10" id="users_bets_list" class="table table-striped">
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Id Event</th>
+            <th>Team1</th>
+            <th>Team2</th>
+            <th>Bet details</th>
+            <th>Coefficient</th>
+            <th>Value of bet</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user_bet : ${listUserBets}">
+            <td th:text="${listUsers.get(user_bet.user_id).username}">Username</td>
+            <td th:text="${listBets.get(user_bet.bet_id).event_id}">Id Event</td>
+            <td th:text="${listEvents.get(listBets.get(user_bet.bet_id).event_id).team1}">Team1</td>
+            <td th:text="${listEvents.get(listBets.get(user_bet.bet_id).event_id).team2}">Team2</td>
+            <td th:text="${mapTypes.get(listBets.get(user_bet.bet_id).type_of_bet_id)} + ' '+ ${listBets.get(user_bet.bet_id).value}">Bet details</td>
+            <td th:text="${listBets.get(user_bet.bet_id).coefficient}">Coefficient</td>
+            <td th:text="${user_bet.value}">Value</td><!--.value.type_of_bet_id) .value-->
+            <td th:text="${user_bet.status}">Status</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table id="events_list" border="1" cellpadding="10"
+           class="table table-striped">
+
+        <thead>
+        <tr>
+            <th>Team 1</th>
+            <th>Team 2</th>
+            <th>Status</th>
+            <th>Bets action</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <div th:each="event : ${listEvents}">
+            <tr class="table-info" th:if="${event.value.status}=='не завершен'">
+                <td th:text="${event.value.team1}">Team 1</td>
+                <td th:text="${event.value.team2}">Team 2</td>
+                <td th:text="${event.value.status}">Status</td>
+                <td>Make a bet</td>
+            </tr>
+            <div th:each="bet : ${listBets}">
+                <tr th:if="${event.value.id}==${bet.value.event_id} and ${event.value.status}=='не завершен'">
+                    <td colspan="1" th:text="${mapTypes.get(bet.value.type_of_bet_id)}">Type of bet</td>
+                    <td th:text="${bet.value.value}">Value</td>
+                    <td th:text="${bet.value.coefficient}">Coefficient</td>
+                    <td>
+                        <a type="button" th:href="@{'/make_bet/' + ${bet.value.id}}" class="btn btn-danger" th:text="${bet.value.coefficient}"></a>
+                        <!--<button type="button" class="btn btn-danger" data-toggle="modal"
+                                data-target="#exampleModal" data-whatever="@mdo" th:data-coefficient="${bet.value.coefficient}" th:text="${bet.value.coefficient}">
+
+                        </button>-->
+                        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                             aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLabel">
+                                            <div th:text="${event.value.team1} + ' VS ' + ${event.value.team2}"></div>
+                                        </h5>
+                                        <button type="button" class="close" data-dismiss="modal"
+                                                aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="#" th:action="@{/save_user_bet}" th:object="${bet}" method="post">
+                                            <div class="form-group">
+                                                <label class="col-form-label">
+                                                    <h5 th:text="${mapTypes.get(bet.value.type_of_bet_id)} +
+                                                            ' ' + ${bet.value.value}"/></h5></label>
+                                                <!--<label for="coef-name" class="col-form-label">Coefficient: </label>-->
+                                                <!--<h5 type="text" class="form-control" id="coef-name"></h5>-->
+                                                <!--<input type="hidden" name="user_id" value=${User.id}>-->
+                                                <input type="hidden" name="bet_id" value=${bet.value.id}>
+                                                <!--<input type="hidden" name="action" value="add_bet">-->
+                                            </div>
+
+                                            <!--<div class="form-group">
+                                                <label for="recipient-name" class="col-form-label">Recipient:</label>
+                                                <input type="text" class="form-control" id="recipient-name">
+                                            </div>-->
+                                            <div class="form-group">
+
+                                                <label for="message-text" class="col-form-label">Value of
+                                                    bet:</label>
+                                                <input type="text" class="form-control" id="message-text"
+                                                       name="value">
+                                                <span class="error" aria-live="polite"></span>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">Close
+                                                </button>
+                                                <button type="submit" class="btn btn-primary" id="betting" onclick="valid(${user.balance})">Bet
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </div>
+        </div>
+
+
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+    $(function () {
+        // инициализация всплывающих подсказок
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+
+<script>
+    document.getElementById('hider2').onclick = function () {
+        document.getElementById('events_list').hidden = !document.getElementById('events_list').hidden;
+        if (!document.getElementById('events_list').hidden) {
+            document.getElementById('users_bets_list').hidden = true;
+        }
+    }
+
+
+    document.getElementById('hider3').onclick = function () {
+        document.getElementById('users_bets_list').hidden = !document.getElementById('users_bets_list').hidden;
+        if (!document.getElementById('users_bets_list').hidden) {
+            document.getElementById('events_list').hidden = true;
+        }
+
+    }
+
+
+    document.getElementById('events_list').hidden = true;
+    document.getElementById('users_bets_list').hidden = true;
+</script>
+
+<script>
+    function valid(data) {
+        alert('Есть данные:' + data);
+        var form = document.getElementsByTagName('form')[1];
+        var email = document.getElementById('message-text');
+        var error = document.querySelector('.error');
+
+        email.addEventListener("input", function (event) {
+            // Каждый раз, когда пользователь вводит что-либо, мы проверяем,
+            // является ли корректным поле электронной почты.
+            if (document.getElementById('message-text').value <= data) {
+                // В случае появления сообщения об ошибке, если поле
+                // является корректным, мы удаляем сообщение об ошибке.
+                error.innerHTML = ""; // Сбросить содержимое сообщения
+                error.className = "error"; // Сбросить визуальное состояние сообщения
+            }
+        }, false);
+        form.addEventListener("submit", function (event) {
+            // Каждый раз, когда пользователь пытается отправить данные, мы проверяем
+            // валидность поля электронной почты.
+
+            if (document.getElementById('message-text').value > data) {
+
+                // Если поле невалидно, отображается пользовательское
+                // сообщение об ошибке.
+                error.innerHTML = "Not enough money!";
+                error.className = "error active";
+                // И мы предотвращаем отправку формы путем отмены события
+                event.preventDefault();
+            }
+        }, false);
+    }
+</script>
+<script>
+    function ctrlButton() {
+        document.getElementById('betting').disabled = this.value.trim().length === 0;
+    }
+
+    document.getElementById('message-text').addEventListener('input', ctrlButton, false);
+    ctrlButton.call(document.getElementById('message-text'));
+</script>
+<script>
+    $('#exampleModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) // Button that triggered the modal
+        var recipient = button.data('whatever') // Extract info from data-* attributes
+        var coef = button.data('coefficient')
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this)
+        modal.find('.modal-title').text('New message to ' + recipient)
+        modal.find('.modal-body input').val(recipient)
+        modal.find('.modal-body h5').val(coef)
+    })
+</script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>

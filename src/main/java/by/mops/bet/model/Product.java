@@ -1,4 +1,4 @@
-package by.mops.bet;
+package by.mops.bet.model;
 
 
 import javax.persistence.Entity;
@@ -14,7 +14,7 @@ public class Product {
     private String madein;
     private float price;
 
-    protected Product() {
+    public Product() {
     }
 
     @Id

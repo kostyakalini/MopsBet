@@ -7,51 +7,68 @@
     <title>Product Manager</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
           integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-
 </head>
 <body>
 <div align="center">
+    <nav class="navbar navbar-expand-lg navbar-light bg-info">
+        <div class="collapse navbar-collapse" style="height: 3em; display: flex; align-items: center;
+                                                        justify-content: center">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <button id="hider1" class="btn btn-info">Список пользователей</button>
+                </li>
+                <li class="nav-item">
+                    <button id="hider2" class="btn btn-info">Список событий</button>
+                </li>
+                <li class="nav-item">
+                    <button id="hider3" class="btn btn-info">Список оформленных ставок</button>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="btn btn-danger">Выйти</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <h1>MOP$ Bet</h1>
     <h3 th:inline="text">Welcome [[${#httpServletRequest.remoteUser}]]</h3>
-    <form th:action="@{/logout}" method="post">
-        <input type="submit" value="logout"/>
-    </form>
-    <h1>Product List</h1>
-    <a sec:authorize="hasRole('ROLE_ADMIN')" href="/new">Create New Product</a>
+
+
     <br/><br/>
-    <table border="1" cellpadding="10">
+    <table border="1" cellpadding="10" id="users_bets_list" class="table table-striped">
         <thead>
         <tr>
-            <th>Product ID</th>
-            <th>Name</th>
-            <th>Brand</th>
-            <th>Made In</th>
-            <th>Price</th>
-            <th sec:authorize="hasRole('ROLE_ADMIN')">Actions</th>
+            <th>Username</th>
+            <th>Id Event</th>
+            <th>Team1</th>
+            <th>Team2</th>
+            <th>Bet details</th>
+            <th>Value of bet</th>
+            <th>Status</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="product : ${listProducts}">
-            <td th:text="${product.id}">Product ID</td>
-            <td th:text="${product.name}">Name</td>
-            <td th:text="${product.brand}">Brand</td>
-            <td th:text="${product.madein}">Made in</td>
-            <td th:text="${product.price}">Price</td>
-            <td sec:authorize="hasRole('ROLE_ADMIN')">
-                <a th:href="@{'/edit/' + ${product.id}}">Edit</a>
-                &nbsp;&nbsp;&nbsp;
-                <a th:href="@{'/delete/' + ${product.id}}">Delete</a>
-            </td>
+        <tr th:each="user_bet : ${listUserBets}">
+            <td th:text="${listUsers.get(user_bet.value.user_id).username}">Username</td>
+            <td th:text="${listBets.get(user_bet.value.bet_id).event_id}">Id Event</td>
+            <td th:text="${listEvents.get(listBets.get(user_bet.value.bet_id).event_id).team1}">Team1</td>
+            <td th:text="${listEvents.get(listBets.get(user_bet.value.bet_id).event_id).team2}">Team2</td>
+            <td th:text="${mapTypes.get(listBets.get(user_bet.value.bet_id).type_of_bet_id)} + ' '+ ${listBets.get(user_bet.value.bet_id).value}">Bet details</td>
+            <td th:text="${user_bet.value.value}">Value</td><!--.value.type_of_bet_id) .value-->
+            <td th:text="${user_bet.value.status}">Status</td>
         </tr>
         </tbody>
     </table>
 
 
-    <table border="1" cellpadding="10" sec:authorize="hasRole('ROLE_ADMIN')">
+    <table id="users_list" border="1" cellpadding="10" sec:authorize="hasRole('ROLE_ADMIN')"
+           class="table table-striped">
         <thead>
         <tr>
             <th>Username</th>
-            <!--<th>First name</th>
-            <th>Last name</th>-->
+            <th>First name</th>
+            <th>Last name</th>
             <th>Role</th>
             <th>Enabled</th>
             <th>Actions</th>
@@ -59,21 +76,106 @@
         </thead>
         <tbody>
         <tr th:each="user : ${listUsers}">
-            <td th:text="${user.username}">Username</td>
-            <!--<td th:text="${product.firstName}">First name</td>
-            <td th:text="${product.lastName}">Last name</td>-->
-            <td th:text="${user.role}">Role</td>
-            <td th:text="${user.enabled}">Enebled</td>
+            <td th:text="${user.value.username}">Username</td>
+            <td th:text="${user.value.firstName}">First name</td>
+            <td th:text="${user.value.lastName}">Last name</td>
+            <td th:text="${user.value.role}">Role</td>
+            <td th:text="${user.value.enabled}">Enebled</td>
             <td>
-                <a th:href="@{'/edit/' + ${user.id}}">Edit</a>
+                <a th:href="@{'/edit_user/' + ${user.value.id}}">Edit</a>
                 &nbsp;&nbsp;&nbsp;
-                <a th:href="@{'/delete/' + ${user.id}}">Delete</a>
+                <a th:href="@{'/delete_user/' + ${user.value.id}}">Delete</a>
             </td>
         </tr>
         </tbody>
     </table>
+
+    <table id="events_list" border="1" cellpadding="10" sec:authorize="hasRole('ROLE_ADMIN')"
+           class="table table-striped center" size="350">
+        <thead>
+        <tr>
+            <td colspan="6" align="center">
+                <a href="/new_event">New Event</a>
+            </td>
+        </tr>
+        <tr>
+            <th>Team 1</th>
+            <th>Team 2</th>
+            <th>Status</th>
+            <th>Actions</th>
+            <th>Bets action</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        <div th:each="event : ${listEvents}">
+            <tr class="table-info">
+                <td th:text="${event.value.team1}">Team 1</td>
+                <td th:text="${event.value.team2}">Team 2</td>
+                <td th:text="${event.value.status}">Status</td>
+                <td>
+                    <a th:href="@{'/edit_event/' + ${event.value.id}}">Edit</a>
+                    &nbsp;&nbsp;&nbsp;
+                    <a th:href="@{'/delete_event/' + ${event.value.id}}">Delete</a>
+                    &nbsp;&nbsp;&nbsp;
+                    <a type="button" th:href="@{'/finish_event/' + ${event.value.id}}" class="btn btn-success" align="center">Завершить</a>
+                </td>
+                <td>
+                    <a th:href="@{'/new_bet/' + ${event.value.id}}">New bet</a>
+                </td>
+
+            </tr>
+            <div th:each="bet : ${listBets}">
+                <tr th:if="${event.value.id}==${bet.value.event_id}">
+                    <td colspan="2" th:text="${mapTypes.get(bet.value.type_of_bet_id)}">Type of bet</td>
+                    <td th:text="${bet.value.value}">Value</td>
+                    <td th:text="${bet.value.coefficient}">Coefficient</td>
+                    <td>
+                        <a th:href="@{'/edit_bet/' + ${bet.value.id}}">Edit</a>
+                        &nbsp;&nbsp;&nbsp;
+                        <a th:href="@{'/delete_bet/' + ${bet.value.id}}">Delete</a>
+                    </td>
+                </tr>
+            </div>
+        </div>
+
+
+        </tbody>
+    </table>
+
 </div>
 
+<script>document.getElementById('hider1').onclick = function () {
+    document.getElementById('users_list').hidden = !document.getElementById('users_list').hidden;
+    if (!document.getElementById('users_list').hidden) {
+        document.getElementById('events_list').hidden = true;
+        document.getElementById('users_bets_list').hidden = true;
+    }
+}
 
+document.getElementById('hider2').onclick = function () {
+    document.getElementById('events_list').hidden = !document.getElementById('events_list').hidden;
+    if (!document.getElementById('events_list').hidden) {
+        document.getElementById('users_list').hidden = true;
+        document.getElementById('users_bets_list').hidden = true;
+    }
+}
+
+
+document.getElementById('hider3').onclick = function () {
+    document.getElementById('users_bets_list').hidden = !document.getElementById('users_bets_list').hidden;
+    if (!document.getElementById('users_bets_list').hidden) {
+        document.getElementById('events_list').hidden = true;
+        document.getElementById('users_list').hidden = true;
+    }
+
+}
+
+
+document.getElementById('users_list').hidden = true;
+document.getElementById('events_list').hidden = true;
+document.getElementById('users_bets_list').hidden = true;
+</script>
+<script src="js/code.js"></script>
 </body>
 </html>
