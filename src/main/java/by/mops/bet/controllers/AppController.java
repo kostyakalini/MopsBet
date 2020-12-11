@@ -4,12 +4,18 @@ import by.mops.bet.DTO.BetDto;
 import by.mops.bet.DTO.EventDto;
 import by.mops.bet.DTO.UserBetDto;
 import by.mops.bet.DTO.UserDto;
+import by.mops.bet.download.CreateExcel;
+import by.mops.bet.download.MediaTypeUtils;
 import by.mops.bet.model.*;
 import by.mops.bet.security.MyUserDetails;
 import by.mops.bet.services.*;
 import by.mops.bet.validator.BalanceValidator;
 import by.mops.bet.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -18,6 +24,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.ServletContext;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -48,6 +58,11 @@ public class AppController {
     @Autowired
     private UserBetService userBetService;
 
+    private static final String DIRECTORY = "C:\\Users\\User\\IdeaProjects\\MopsBet\\src\\main\\resources\\static\\TempFiles";
+    private static final String DEFAULT_FILE_NAME = "file.xls";
+
+    @Autowired
+    private ServletContext servletContext;
 
     @RequestMapping("/")
     public String viewHomePage(Model model) {
@@ -74,7 +89,42 @@ public class AppController {
         }
     }
 
-    
+
+
+    @RequestMapping("/download1")
+    public ResponseEntity<InputStreamResource> downloadFile1(
+            @RequestParam(defaultValue = DEFAULT_FILE_NAME) String fileName) throws IOException {
+        List<UserBet> userBets = null;
+        Map<Long, User> users = userService.mapAll();
+        Map<Long, Event> events = eventService.mapAll();
+        Map<Long, Bet> bets = betService.mapAll();
+        Map<Long, String> mapTypes = typeOfBetService.listAll();
+        MyUserDetails user = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user.getRole().equals("ROLE_USER")) {
+            userBets = userBetService.listUserBets(user.getUser().getId());
+        } else {
+            userBets = userBetService.listAll();
+        }
+        CreateExcel.ctreateExcelFile(user, users, events, bets, mapTypes, userBets);
+
+        MediaType mediaType = MediaTypeUtils.getMediaTypeForFileName(this.servletContext, fileName);
+        System.out.println("fileName: " + fileName);
+        System.out.println("mediaType: " + mediaType);
+
+        File file = new File(DIRECTORY + "/" + fileName);
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+        return ResponseEntity.ok()
+                // Content-Disposition
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
+                // Content-Type
+                .contentType(mediaType)
+                // Contet-Length
+                .contentLength(file.length()) //
+                .body(resource);
+    }
+
+
 
     //Bet--------------------------------------------------------------------------------
     //Bet--------------------------------------------------------------------------------
@@ -170,6 +220,12 @@ public class AppController {
         }
         MyUserDetails myUser = (MyUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         myUser.setBalance(myUser.getUser().getBalance() - userBet.getValue());
+        User admin = userService.get(2L);
+        UserDto userDto1 = new UserDto(admin.getId(), admin.getUsername(), admin.getPassword(),
+                admin.getRole(), admin.getEnabled(), admin.getFirstName(), admin.getLastName(),
+                admin.getBalance() + userBet.getValue());
+        userService.updateUser(userDto1);
+
         userBet.setUser_id(myUser.getUser().getId());
         userBet.setStatus("событие не окончено");
 
@@ -281,6 +337,11 @@ public class AppController {
                     myUser.getRole(), myUser.getEnabled(), myUser.getFirstName(), myUser.getLastName(),
                     myUser.getBalance() + sumWin);
             userService.updateUser(userDto);
+            User admin = userService.get(2L);
+            UserDto userDto1 = new UserDto(admin.getId(), admin.getUsername(), admin.getPassword(),
+                    admin.getRole(), admin.getEnabled(), admin.getFirstName(), admin.getLastName(),
+                    admin.getBalance() - sumWin);
+            userService.updateUser(userDto1);
         }
     }
 

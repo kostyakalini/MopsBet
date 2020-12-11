@@ -37,6 +37,7 @@
 
     <br/><br/>
     <table border="1" cellpadding="10" id="users_bets_list" class="table table-striped">
+        <caption><a type="button" class="btn btn-secondary" href="/download1">Download</a></caption>
         <thead>
         <tr>
             <th>Username</th>
@@ -57,6 +58,7 @@
             <td th:text="${mapTypes.get(listBets.get(user_bet.value.bet_id).type_of_bet_id)} + ' '+ ${listBets.get(user_bet.value.bet_id).value}">Bet details</td>
             <td th:text="${user_bet.value.value}">Value</td><!--.value.type_of_bet_id) .value-->
             <td th:text="${user_bet.value.status}">Status</td>
+
         </tr>
         </tbody>
     </table>
