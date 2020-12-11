@@ -26,8 +26,6 @@ import java.util.Map;
 @Controller
 public class AppController {
 
-    @Autowired
-    private ProductService productService;
 
     @Autowired
     private UserValidator userValidator;
@@ -76,35 +74,7 @@ public class AppController {
         }
     }
 
-    @RequestMapping("/new_product")
-    public String showNewProductPage(Model model) {
-        Product product = new Product();
-        model.addAttribute("product", product);
-
-        return "new_product";
-    }
-
-    @RequestMapping(value = "/save_product", method = RequestMethod.POST)
-    public String saveProduct(@ModelAttribute("product") Product product) {
-        productService.save(product);
-
-        return "redirect:/";
-    }
-
-    @RequestMapping("/edit_product/{id}")
-    public ModelAndView showEditProductPage(@PathVariable(name = "id") int id) {
-        ModelAndView mav = new ModelAndView("edit_product");
-        Product product = productService.get(id);
-        mav.addObject("product", product);
-
-        return mav;
-    }
-
-    @RequestMapping("/delete_product/{id}")
-    public String deleteProduct(@PathVariable(name = "id") int id) {
-        productService.delete(id);
-        return "redirect:/";
-    }
+    
 
     //Bet--------------------------------------------------------------------------------
     //Bet--------------------------------------------------------------------------------
