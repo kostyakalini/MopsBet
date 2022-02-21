@@ -1,6 +1,5 @@
 package by.mops.bet.DTO;
 
-import by.mops.bet.model.Event;
 import by.mops.bet.model.User;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;

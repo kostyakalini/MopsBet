@@ -26,8 +26,8 @@ public class Bet {
     private Long event_id;
     private Long type_of_bet_id;
 
-    @OneToMany(targetEntity = UserBet.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "bet_id", referencedColumnName = "id")
+    @OneToMany(mappedBy = "bet_id", cascade = CascadeType.ALL, orphanRemoval = true)
+    //@JoinColumn(name = "bet_id", referencedColumnName = "id")
     private List<UserBet> userBets = new ArrayList<>();
 
     //private Event event;

@@ -14,14 +14,14 @@
             <h2>Employee Registration</h2>
             <form th:action="@{/registration}" th:object="${userForm}" method="post">
                 <div class="form-row">
-                    <!--<div class="col-md-6 form-group">
+                    <div class="col-md-6 form-group">
                         <label>First name</label>
-                        <input type="text" class="form-control" th:field="*{firsName}">
+                        <input type="text" class="form-control" th:field="*{firstName}">
                     </div>
                     <div class="col-md-6 form-group">
                         <label>Last name</label>
                         <input type="text" class="form-control" th:field="*{lastName}">
-                    </div>-->
+                    </div>
                     <div class="col-md-6 form-group">
                         <label>Username</label>
                         <input type="text" class="form-control" th:field="*{username}">
@@ -33,11 +33,6 @@
                         <input type="text" class="form-control" th:field="*{password}">
                         <p class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Incorrect date</p>
                     </div>
-
-                    <!--<div class="col-md-6 form-group">
-                        <label>Birthday Date</label>
-                        <input type="text" class="form-control" placeholder="yyyy-MM-dd" id="join_datepicker" th:field="*{birthday}">
-                    </div>-->
                 </div>
                 <div align="center">
                     <button type="submit" class="btn btn-success">Save</button>
@@ -47,13 +42,5 @@
         </div>
     </div>
 </div>
-<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script>
-    $(function () {
-        $("#join_datepicker").datepicker({dateFormat: "yy-mm-dd"});
-        $("#retire_datepicker").datepicker({dateFormat: "yy-mm-dd"});
-    });
-</script>-->
 </body>
 </html>

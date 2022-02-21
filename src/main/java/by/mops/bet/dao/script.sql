@@ -1,111 +1,65 @@
-ALTER TABLE users
-    ADD firstName VARCHAR(50) NULL;
-
-ALTER TABLE users
-    ADD lastName VARCHAR(50) NULL;
-
-ALTER TABLE users MODIFY COLUMN username VARCHAR(50) NOT NULL;
-
-select * from users;
-
-delete from users where id > 1;
-
-ALTER TABLE types_of_bet DROP COLUMN value;
-
-use mopsbetdb;
-
-select * from bets
-                  Join types_of_bet on bets.type_of_bet_id = types_of_bet.id
-                  join events on bets.event_id = events.id;
-
-SELECT * FROM user_bets
-                  JOIN bets on user_bets.bet_id = bets.id
-                  JOIN types_of_bet tob on tob.id = bets.type_of_bet_id
-WHERE bets.event_id = 1;
-
-
-select * from bets country
-                  join bets cities on country.id = cities.event_id
-where
-        country.id = 1;
-
-CREATE TABLE users
+create table events
 (
-    id int(11) NOT NULL AUTO_INCREMENT,
-    username varchar(45) NOT NULL,
-    password varchar(64) NOT NULL,
-    firstname varchar(64) NOT NULL,
-    lastname varchar(64) NOT NULL,
-    role varchar(45) NOT NULL,
-    enabled tinyint(4) DEFAULT NULL,
-    balance double not null,
-    PRIMARY KEY (user_id)
-);
-
-create table bets
-(
-    id int auto_increment primary key,
-
-    coefficient double not null,
-    event_id int not null,
-    type_of_bet_id int not null,
-    value varchar(50),
-
-    FOREIGN KEY(event_id) REFERENCES events(id),
-    FOREIGN KEY(type_of_bet_id) REFERENCES types_of_bet(id)
+    id     int auto_increment
+        primary key,
+    team1  varchar(50) null,
+    team2  varchar(50) null,
+    status varchar(50) not null,
+    result varchar(3)  null,
+    total  int         null
 );
 
 create table types_of_bet
 (
-    id int auto_increment primary key,
+    id   int auto_increment
+        primary key,
+    name varchar(90) not null
+);
 
-    name varchar(90) not null,
-    value double
+create table bets
+(
+    id             int auto_increment
+        primary key,
+    coefficient    double      not null,
+    event_id       int         not null,
+    type_of_bet_id int         not null,
+    value          varchar(50) null,
+    constraint bets_ibfk_1
+        foreign key (event_id) references events (id)
+            on update cascade on delete cascade,
+    constraint bets_ibfk_2
+        foreign key (type_of_bet_id) references types_of_bet (id)
+            on delete cascade
+);
+
+create table users
+(
+    id        int auto_increment
+        primary key,
+    username  varchar(45) not null,
+    password  varchar(64) not null,
+    role      varchar(45) not null,
+    enabled   tinyint     null,
+    balance   double      null,
+    firstname varchar(50) null,
+    lastname  varchar(50) null
 );
 
 create table user_bets
 (
-    id int auto_increment primary key,
-
-    bet_id int not null,
-    user_id int not null,
-    value double not null,
-    status varchar(50),
-
-    FOREIGN KEY(user_id) REFERENCES users(id),
-    FOREIGN KEY(bet_id) REFERENCES bets(id)
+    id      int auto_increment
+        primary key,
+    bet_id  int         not null,
+    value   double      not null,
+    status  varchar(50) not null,
+    user_id int         not null,
+    constraint user_bets_bets__fk
+        foreign key (bet_id) references bets (id)
+            on update cascade on delete cascade,
+    constraint user_bets_users_id_fk
+        foreign key (user_id) references users (id)
+            on update cascade on delete cascade
 );
 
-create table events
-(
-    id int auto_increment primary key,
-    #league_id int,
-    team1 varchar(50),
-    team2 varchar(50)#,
-
-    #FOREIGN KEY (league_id) REFERENCES leagues(id)
-);
-
-create table type_of_sports
-(
-    id int auto_increment primary key,
-    name varchar(50) not null
-);
-
-INSERT types_of_bet(name)
-VALUES
-    ('Победа в матче'),
-    ('Тотал общий больше'),
-    ('Ничья'),
-    ('Тотал общий меньше');
-
-/*create table leagues
-(
-    id int auto_increment primary key,
-    name varchar(50),
-    type_of_sport_id varchar(50) not null,
-    country varchar(50),
-    FOREIGN KEY (type_of_sport_id) REFERENCES type_of_sports(id)
-);*/
-
-
+create index user_bets_users__fk
+    on user_bets (user_id);

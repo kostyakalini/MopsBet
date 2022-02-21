@@ -85,8 +85,6 @@
             <td th:text="${user.value.enabled}">Enebled</td>
             <td>
                 <a th:href="@{'/edit_user/' + ${user.value.id}}">Edit</a>
-                &nbsp;&nbsp;&nbsp;
-                <a th:href="@{'/delete_user/' + ${user.value.id}}">Delete</a>
             </td>
         </tr>
         </tbody>
@@ -120,7 +118,9 @@
                     &nbsp;&nbsp;&nbsp;
                     <a th:href="@{'/delete_event/' + ${event.value.id}}">Delete</a>
                     &nbsp;&nbsp;&nbsp;
-                    <a type="button" th:href="@{'/finish_event/' + ${event.value.id}}" class="btn btn-success" align="center">Завершить</a>
+                    <div th:if="${event.value.status == 'не завершен'}">
+                        <a type="button" th:href="@{'/finish_event/' + ${event.value.id}}" class="btn btn-success" align="center">Завершить</a>
+                    </div>
                 </td>
                 <td>
                     <a th:href="@{'/new_bet/' + ${event.value.id}}">New bet</a>

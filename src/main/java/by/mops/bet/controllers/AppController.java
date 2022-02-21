@@ -381,7 +381,18 @@ public class AppController {
 
     @RequestMapping(value = "/save_user", method = RequestMethod.POST)
     public String saveUser(@ModelAttribute("user") User user) {
-        userService.save(user);
+        UserDto userDto = new UserDto(user.getId(),
+                user.getUsername(),
+                user.getPassword(),
+                user.getRole(),
+                user.getEnabled(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getBalance());
+        if (user.getId() == null)
+            userService.save(user);
+        else
+            userService.updateUser(userDto);
 
         return "redirect:/";
     }

@@ -25,8 +25,8 @@ public class Event implements Serializable {
     private String result;
     private Integer total;
 
-    @OneToMany(targetEntity = Bet.class, cascade = CascadeType.ALL)
-    @JoinColumn(name = "event_id", referencedColumnName = "id")
+    @OneToMany(mappedBy = "event_id", cascade = CascadeType.ALL, orphanRemoval = true)
+    //@JoinColumn(name = "event_id", referencedColumnName = "id")
     private List<Bet> bets = new ArrayList<>();
 
     public Event() {
